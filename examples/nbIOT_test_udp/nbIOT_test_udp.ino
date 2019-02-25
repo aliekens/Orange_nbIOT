@@ -102,7 +102,7 @@ const char* forceOperator = "20416"; // optional - depends on SIM / network
 const char* apn = ""; // No APN or CDP for Orange Belgium
 const char* cdp = "";
 uint8_t cid = 1;
-const uint8_t band = 8;
+const uint8_t band = 20;
 const char* forceOperator = "20610"; // optional - depends on SIM / network
 #endif
 
@@ -131,7 +131,7 @@ void sendMessageThroughUDP()
 #elif defined(TMOBILE_NL)
     int lengthSent = nbiot.socketSend(socketID, "172.27.131.100", 15683, strBuffer); // "172.27.131.100" : 15683 is the T-Mobile NL CDP   
 #elif defined(ORANGE_BE)
-    int lengthSent = nbiot.socketSend(socketID, "195.34.89.241", 7, strBuffer); // "172.27.131.100" : 15683 is the T-Mobile NL CDP   
+    int lengthSent = nbiot.socketSend(socketID, "195.34.89.241", 7, strBuffer); // "172.27.131.100" : 7 is the ublox echo service
 #endif
     DEBUG_STREAM.print("String length vs sent: ");
     DEBUG_STREAM.print(size);
@@ -205,13 +205,16 @@ void setup()
 
 void loop()
 {
-    sodaq_wdt_safe_delay(60000);
+    sodaq_wdt_safe_delay(10000);
     if (!nbiot.isConnected()) {
         if (!nbiot.connect(apn, cdp, forceOperator, band)) {
             DEBUG_STREAM.println("Failed to connect to the modem!");
+        } else {
+            DEBUG_STREAM.println("Connected to the modem!");
         }
     }
     else {
+        DEBUG_STREAM.println("Sending message through UDP");
         sendMessageThroughUDP();
     }
 }
