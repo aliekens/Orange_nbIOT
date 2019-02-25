@@ -26,6 +26,7 @@ License along with Sodaq_nbIOT.  If not, see
 // Select one of the operators
 //#define VODAFONE_NL
 //#define TMOBILE_NL
+#define ORANGE_BE
 
 #if defined(ARDUINO_AVR_LEONARDO)
 /* Arduino Leonardo + SODAQ NB-IoT Shield */
@@ -97,6 +98,12 @@ const char* cdp = "172.27.131.100";
 uint8_t cid = 1;
 const uint8_t band = 8;
 const char* forceOperator = "20416"; // optional - depends on SIM / network
+#elif defined(ORANGE_BE)
+const char* apn = ""; // No APN or CDP for Orange Belgium
+const char* cdp = "";
+uint8_t cid = 1;
+const uint8_t band = 8;
+const char* forceOperator = "20610"; // optional - depends on SIM / network
 #endif
 
 Sodaq_nbIOT nbiot;
@@ -123,6 +130,8 @@ void sendMessageThroughUDP()
     int lengthSent = nbiot.socketSend(socketID, "195.34.89.241", 7, strBuffer); // "195.34.89.241" : 7 is the ublox echo service
 #elif defined(TMOBILE_NL)
     int lengthSent = nbiot.socketSend(socketID, "172.27.131.100", 15683, strBuffer); // "172.27.131.100" : 15683 is the T-Mobile NL CDP   
+#elif defined(ORANGE_BE)
+    int lengthSent = nbiot.socketSend(socketID, "195.34.89.241", 7, strBuffer); // "172.27.131.100" : 15683 is the T-Mobile NL CDP   
 #endif
     DEBUG_STREAM.print("String length vs sent: ");
     DEBUG_STREAM.print(size);

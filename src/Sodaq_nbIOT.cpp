@@ -22,7 +22,7 @@
 #include <Sodaq_wdt.h>
 #include "time.h"
 
-//#define DEBUG
+#define DEBUG
 
 #define EPOCH_TIME_OFF      946684800  // This is 1st January 2000, 00:00:00 in epoch time
 #define EPOCH_TIME_YEAR_OFF 100        // years since 1900
@@ -500,6 +500,7 @@ void Sodaq_nbIOT::purgeAllResponsesRead()
 // Turns on and initializes the modem, then connects to the network and activates the data connection.
 bool Sodaq_nbIOT::connect(const char* apn, const char* cdp, const char* forceOperator, uint8_t band)
 {
+
     if (!on()) {
         return false;
     }
@@ -571,13 +572,13 @@ bool Sodaq_nbIOT::connect(const char* apn, const char* cdp, const char* forceOpe
         return false;
     }
 
-    if (!setApn(apn)) {
+    if( apn != "" )
+      if (!setApn(apn))
         return false;
-    }
 
-    if (!_isSaraR4XX && !setCdp(cdp)) {
+    if( cdp != "" )
+      if (!_isSaraR4XX && !setCdp(cdp))
         return false;
-    }
     
     if (!setRadioActive(true)) {
         return false;
@@ -1252,6 +1253,7 @@ bool Sodaq_nbIOT::waitForSignalQuality(uint32_t timeout)
     
     while (!is_timedout(start, timeout)) {
         if (getRSSIAndBER(&rssi, &ber)) {
+          debugPrintLn(rssi)
             if (rssi != 0 && rssi >= minRSSI) {
                 _lastRSSI = rssi;
                 _CSQtime = (int32_t)(millis() - start) / 1000;
