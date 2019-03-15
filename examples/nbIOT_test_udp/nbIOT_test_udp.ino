@@ -99,8 +99,8 @@ uint8_t cid = 1;
 const uint8_t band = 8;
 const char* forceOperator = "20416"; // optional - depends on SIM / network
 #elif defined(ORANGE_BE)
-const char* apn = ""; // No APN or CDP for Orange Belgium
-const char* cdp = "";
+const char* apn = "iot.orange.be"; 
+const char* cdp = ""; // No CDP for Orange Belgium
 uint8_t cid = 1;
 const uint8_t band = 20;
 const char* forceOperator = "20610"; // optional - depends on SIM / network
@@ -138,24 +138,28 @@ void sendMessageThroughUDP()
     DEBUG_STREAM.print(" vs ");
     DEBUG_STREAM.println(lengthSent);
 
+    String response = "";
+
     // wait for data
     if (nbiot.waitForUDPResponse()) {
         DEBUG_STREAM.println("Received response!");
 
-        while (nbiot.hasPendingUDPBytes()) {
+        while (nbiot.getPendingUDPBytes() > 0) {
             char data[200];
             // read two bytes at a time
             SaraN2UDPPacketMetadata p;
             int size = nbiot.socketReceiveHex(data, 2, &p);
 
             if (size) {
-                DEBUG_STREAM.println(data);
+                char c = atoi( data );
+                response += c;
                 // p is a pointer to memory that is owned by nbiot class
-                DEBUG_STREAM.println(p.socketID);
-                DEBUG_STREAM.println(p.ip);
-                DEBUG_STREAM.println(p.port);
-                DEBUG_STREAM.println(p.length);
-                DEBUG_STREAM.println(p.remainingLength);
+                //DEBUG_STREAM.println(p.socketID);
+                //DEBUG_STREAM.print(p.ip);
+                //DEBUG_STREAM.print(":");
+                //DEBUG_STREAM.println(p.port);
+                //DEBUG_STREAM.println(p.length);
+                //DEBUG_STREAM.println(p.remainingLength);
             }
             else {
                 DEBUG_STREAM.println("Receive failed!");
@@ -165,6 +169,8 @@ void sendMessageThroughUDP()
     else {
         DEBUG_STREAM.println("Timed-out!");
     }
+
+    DEBUG_STREAM.println( response );
 
     nbiot.closeSocket(socketID);
     DEBUG_STREAM.println();
@@ -205,7 +211,7 @@ void setup()
 
 void loop()
 {
-    sodaq_wdt_safe_delay(10000);
+    sodaq_wdt_safe_delay(60000);
     if (!nbiot.isConnected()) {
         if (!nbiot.connect(apn, cdp, forceOperator, band)) {
             DEBUG_STREAM.println("Failed to connect to the modem!");
